@@ -23,10 +23,17 @@ Muitos petshops de pequeno porte ainda organizam seus agendamentos manualmente (
 5. Execute o aplicativo em um emulador ou dispositivo conectado: `flutter run`
 
 ## Funcionalidades implementadas
+- Tela de splash
+- Tela de agenda (lista de agendamentos do dia)
+- Cadastro de novo agendamento (interface, sem persistência ainda)
+- Lista de clientes com busca e layout adaptável (lista/grid)
+- Cadastro de cliente e pet (interface, sem persistência ainda)
+- Tela de detalhes do pet com histórico (vazio nesta etapa)
 
-- Configuração inicial do projeto Flutter
-- Estrutura de pastas e documentação conforme diretrizes da disciplina
+## Limitações conhecidas
+- Os dados são fictícios (mock) e não há persistência local ainda.
+- Não há comunicação com backend/API nesta etapa.
 
 ## Limitações conhecidas
 
-- Ainda não há funcionalidades de negócio implementadas (cadastro, agenda, etc.) — o projeto está na etapa de configuração inicial.
+- Ainda não há funcionalidades de negócio implementadas (cadastro, agenda, etc.). O projeto está na etapa de configuração inicial.
