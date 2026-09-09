@@ -65,10 +65,10 @@ banho-tosa-app/
 │   ├── arquitetura.md
 │   └── evidencias.md
 ├── src/          (código-fonte do projeto Flutter)
-│   ├── lib/
-│   ├── android/
-│   ├── ios/
-│   ├── tests/
-│   └── pubspec.yaml
-└── tests/        (referenciado em src/tests, conforme estrutura Flutter)
+    ├── lib/
+    ├── android/
+    ├── ios/
+    ├── tests/
+    └── pubspec.yaml
+
 ```
