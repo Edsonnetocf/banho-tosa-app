@@ -82,14 +82,20 @@ class _ClientesScreenState extends State<ClientesScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.person_add),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ClienteFormScreen()),
-          );
-        },
+           floatingActionButton: Semantics(
+        label: 'Adicionar novo cliente',
+        button: true,
+        hint: 'Abre o formulário de cadastro de cliente e pet',
+        child: FloatingActionButton(
+          tooltip: 'Adicionar novo cliente',
+          child: const Icon(Icons.person_add),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ClienteFormScreen()),
+            );
+          },
+        ),
       ),
     );
   }

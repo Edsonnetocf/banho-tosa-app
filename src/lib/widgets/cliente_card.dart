@@ -12,20 +12,23 @@ class ClienteCard extends StatelessWidget {
     required this.onTap,
   });
 
-  @override
+    @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      child: ListTile(
-        leading: const CircleAvatar(
-          child: Icon(Icons.person),
+    return MergeSemantics(
+      child: Card(
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        child: ListTile(
+          minVerticalPadding: 12,
+          leading: const CircleAvatar(
+            child: Icon(Icons.person),
+          ),
+          title: Text(cliente.nome),
+          subtitle: Text(
+            '${cliente.telefone} • ${cliente.pets.length} pet(s)',
+          ),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: onTap,
         ),
-        title: Text(cliente.nome),
-        subtitle: Text(
-          '${cliente.telefone} • ${cliente.pets.length} pet(s)',
-        ),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: onTap,
       ),
     );
   }

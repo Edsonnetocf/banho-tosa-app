@@ -20,15 +20,18 @@ class AgendaScreen extends StatelessWidget {
                 return AgendamentoTile(agendamento: mockAgendamentos[index]);
               },
             ),
-      floatingActionButton: FloatingActionButton.extended(
-        icon: const Icon(Icons.add),
-        label: const Text('Novo Agendamento'),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const NovoAgendamentoScreen()),
-          );
-        },
+            floatingActionButton: Semantics(
+        hint: 'Abre o formulário para marcar um novo horário',
+        child: FloatingActionButton.extended(
+          icon: const Icon(Icons.add),
+          label: const Text('Novo Agendamento'),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const NovoAgendamentoScreen()),
+            );
+          },
+        ),
       ),
     );
   }

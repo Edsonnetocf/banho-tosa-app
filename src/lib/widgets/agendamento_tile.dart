@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../models/agendamento.dart';
 
 //widget reutilizável: uma linha da lista de agendamentos
@@ -7,45 +8,49 @@ class AgendamentoTile extends StatelessWidget {
 
   const AgendamentoTile({super.key, required this.agendamento});
 
-  @override
+    @override
   Widget build(BuildContext context) {
     final hora =
         '${agendamento.dataHora.hour.toString().padLeft(2, '0')}:${agendamento.dataHora.minute.toString().padLeft(2, '0')}';
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            //bloco de horário
-            Column(
-              children: [
-                Text(
-                  hora,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(width: 16),
-            //informacões do agendamento (ocupa o espaço restante)
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return MergeSemantics(
+      child: Card(
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
+              //bloco de horário
+              Column(
                 children: [
                   Text(
-                    '${agendamento.petNome} (${agendamento.clienteNome})',
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    hora,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  Text(agendamento.servico),
                 ],
               ),
-            ),
-            const Icon(Icons.pets),
-          ],
+              const SizedBox(width: 16),
+              //informacoes do agendamento 
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${agendamento.petNome} (${agendamento.clienteNome})',
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    Text(agendamento.servico),
+                  ],
+                ),
+              ),
+              ExcludeSemantics(
+                child: const Icon(Icons.pets),
+              ),
+            ],
+          ),
         ),
       ),
     );

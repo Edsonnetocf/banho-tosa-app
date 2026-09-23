@@ -21,20 +21,22 @@ class PetDetalhesScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF0B6374).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Tutor(a): ${cliente.nome}'),
-                  Text('Espécie: ${pet.especie}'),
-                  Text('Raça: ${pet.raca}'),
-                  Text('Porte: ${pet.porte}'),
-                ],
+                        MergeSemantics(
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0B6374).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Tutor(a): ${cliente.nome}'),
+                    Text('Espécie: ${pet.especie}'),
+                    Text('Raça: ${pet.raca}'),
+                    Text('Porte: ${pet.porte}'),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 24),
