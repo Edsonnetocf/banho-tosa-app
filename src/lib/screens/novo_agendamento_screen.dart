@@ -62,6 +62,7 @@ class _NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
               children: [
                 Expanded(child: Text('Horário: ${_horario.format(context)}')),
                 TextButton(
+                  style: TextButton.styleFrom(minimumSize: const Size(120, 48)),
                   onPressed: () async {
                     final novoHorario = await showTimePicker(
                       context: context,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../data/mock_data.dart';
 import '../models/cliente.dart';
 import '../widgets/cliente_card.dart';
@@ -52,9 +53,9 @@ class _ClientesScreenState extends State<ClientesScreen> {
                     padding: const EdgeInsets.all(8),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 4,
-                    ),
+                          crossAxisCount: 2,
+                          childAspectRatio: 4,
+                        ),
                     itemCount: _clientesFiltrados.length,
                     itemBuilder: (context, index) {
                       final cliente = _clientesFiltrados[index];
@@ -82,7 +83,7 @@ class _ClientesScreenState extends State<ClientesScreen> {
           ),
         ],
       ),
-           floatingActionButton: Semantics(
+      floatingActionButton: Semantics(
         label: 'Adicionar novo cliente',
         button: true,
         hint: 'Abre o formulário de cadastro de cliente e pet',
@@ -105,7 +106,8 @@ class _ClientesScreenState extends State<ClientesScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => PetDetalhesScreen(pet: cliente.pets.first, cliente: cliente),
+        builder: (_) =>
+            PetDetalhesScreen(pet: cliente.pets.first, cliente: cliente),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../models/cliente.dart';
 import '../models/pet.dart';
 
@@ -21,7 +22,7 @@ class PetDetalhesScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-                        MergeSemantics(
+            MergeSemantics(
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(

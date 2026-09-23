@@ -20,7 +20,7 @@ class AgendaScreen extends StatelessWidget {
                 return AgendamentoTile(agendamento: mockAgendamentos[index]);
               },
             ),
-            floatingActionButton: Semantics(
+      floatingActionButton: Semantics(
         hint: 'Abre o formulário para marcar um novo horário',
         child: FloatingActionButton.extended(
           icon: const Icon(Icons.add),

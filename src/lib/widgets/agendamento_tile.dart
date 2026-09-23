@@ -8,7 +8,7 @@ class AgendamentoTile extends StatelessWidget {
 
   const AgendamentoTile({super.key, required this.agendamento});
 
-    @override
+  @override
   Widget build(BuildContext context) {
     final hora =
         '${agendamento.dataHora.hour.toString().padLeft(2, '0')}:${agendamento.dataHora.minute.toString().padLeft(2, '0')}';
@@ -33,7 +33,7 @@ class AgendamentoTile extends StatelessWidget {
                 ],
               ),
               const SizedBox(width: 16),
-              //informacoes do agendamento 
+              //informacoes do agendamento
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,9 +46,7 @@ class AgendamentoTile extends StatelessWidget {
                   ],
                 ),
               ),
-              ExcludeSemantics(
-                child: const Icon(Icons.pets),
-              ),
+              ExcludeSemantics(child: const Icon(Icons.pets)),
             ],
           ),
         ),
