@@ -8,6 +8,7 @@ class ClienteFormScreen extends StatefulWidget {
 }
 
 class _ClienteFormScreenState extends State<ClienteFormScreen> {
+  bool _salvando = false;
   final _formKey = GlobalKey<FormState>();
 
   final _nomeClienteController = TextEditingController();
@@ -36,8 +37,10 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            const Text('Dados do Cliente',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text(
+              'Dados do Cliente',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             TextFormField(
               controller: _nomeClienteController,
@@ -58,8 +61,10 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
               ),
             ),
             const Divider(height: 32),
-            const Text('Dados do Pet',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text(
+              'Dados do Pet',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             TextFormField(
               controller: _nomePetController,
@@ -76,9 +81,11 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
                 labelText: 'Espécie',
                 border: OutlineInputBorder(),
               ),
-              items: ['Cachorro', 'Gato', 'Outro']
-                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                  .toList(),
+              items: [
+                'Cachorro',
+                'Gato',
+                'Outro',
+              ].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
               onChanged: (v) => setState(() => _especie = v!),
             ),
             const SizedBox(height: 12),
@@ -96,9 +103,11 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
                 labelText: 'Porte',
                 border: OutlineInputBorder(),
               ),
-              items: ['Pequeno', 'Médio', 'Grande']
-                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                  .toList(),
+              items: [
+                'Pequeno',
+                'Médio',
+                'Grande',
+              ].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
               onChanged: (v) => setState(() => _porte = v!),
             ),
             const SizedBox(height: 24),
@@ -107,20 +116,36 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 backgroundColor: const Color(0xFF0B6374),
               ),
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  //nesta etapa não salva no banco ainda 
-                  //so simula o sucesso e volta para a tela anterior.
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Cliente salvo (simulado)!')),
-                  );
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text(
-                'Salvar',
-                style: TextStyle(color: Colors.white),
-              ),
+              onPressed: _salvando
+                  ? null //desabilita o botao enquanto salva pra evita duplo clique
+                  : () async {
+                      if (_formKey.currentState!.validate()) {
+                        setState(() => _salvando = true);
+
+                        //simula uma operação ex: salvar no banco/servidor
+                        await Future.delayed(const Duration(milliseconds: 800));
+
+                        if (!context.mounted) return;
+                        setState(() => _salvando = false);
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Cliente salvo com sucesso!'),
+                          ),
+                        );
+                        Navigator.pop(context);
+                      }
+                    },
+              child: _salvando
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Text('Salvar', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
