@@ -30,10 +30,14 @@ Muitos petshops de pequeno porte ainda organizam seus agendamentos manualmente (
 - Cadastro de cliente e pet (interface, sem persistência ainda)
 - Tela de detalhes do pet com histórico (vazio nesta etapa)
 
+## Navegação e Acessibilidade (Etapa 3)
+- Navegação principal por abas fixas (Agenda e Clientes) usando NavigationBar, posicionada na thumb zone
+- Navegação interna por pilha (push/pop) com botão de voltar automático
+- Feedback visual de carregamento ao salvar cliente e agendamento
+- Uso de Semantics (label, button, hint), MergeSemantics e ExcludeSemantics para leitores de tela
+- Áreas de toque com no mínimo 48dp, seguindo a Lei de Fitts
+- Contraste de texto adequado (mínimo 4.5:1, WCAG 2.1 AA) no tema principal do app
+
 ## Limitações conhecidas
 - Os dados são fictícios (mock) e não há persistência local ainda.
 - Não há comunicação com backend/API nesta etapa.
-
-## Limitações conhecidas
-
-- Ainda não há funcionalidades de negócio implementadas (cadastro, agenda, etc.). O projeto está na etapa de configuração inicial.

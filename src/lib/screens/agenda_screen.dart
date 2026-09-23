@@ -23,6 +23,7 @@ class AgendaScreen extends StatelessWidget {
       floatingActionButton: Semantics(
         hint: 'Abre o formulário para marcar um novo horário',
         child: FloatingActionButton.extended(
+          heroTag: 'fab_agenda',
           icon: const Icon(Icons.add),
           label: const Text('Novo Agendamento'),
           onPressed: () {

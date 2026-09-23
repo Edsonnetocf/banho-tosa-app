@@ -88,6 +88,7 @@ class _ClientesScreenState extends State<ClientesScreen> {
         button: true,
         hint: 'Abre o formulário de cadastro de cliente e pet',
         child: FloatingActionButton(
+          heroTag: 'fab_clientes',
           tooltip: 'Adicionar novo cliente',
           child: const Icon(Icons.person_add),
           onPressed: () {
