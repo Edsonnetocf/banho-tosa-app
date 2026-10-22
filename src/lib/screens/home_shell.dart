@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'agenda_screen.dart';
 import 'clientes_screen.dart';
 
@@ -31,12 +32,13 @@ class _HomeShellState extends State<HomeShell> {
         onDestinationSelected: (index) {
           setState(() => _abaSelecionada = index);
         },
+
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.calendar_today_outlined),
             selectedIcon: Icon(Icons.calendar_today),
             label: 'Agenda',
-            tooltip: 'Ver agenda de hoje',
+            tooltip: 'Ver agendamentos',
           ),
           NavigationDestination(
             icon: Icon(Icons.people_outline),
