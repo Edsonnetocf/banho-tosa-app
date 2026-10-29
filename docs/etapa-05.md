@@ -229,6 +229,7 @@ A tag prevista é `etapa-05`. Não foi criada nem publicada automaticamente. A e
 - Backend: 16 testes aprovados, nenhum reprovado; HTTP real com SQLite em memória e teste de reabertura de arquivo temporário.
 - Flutter: 10 testes unitários/de interface aprovados, nenhum reprovado.
 - Análise estática: `flutter analyze` sem problemas.
+- Compilação: `flutter build apk --debug` concluído, gerando a entrada normal em `src/build/app/outputs/flutter-apk/app-debug.apk`.
 - Android Pixel 8: um teste de integração aprovado com API exclusiva na porta 3100 e bancos temporários, incluindo formulário, transferência dos dados antigos, CRUD, conflitos e cache offline.
 - O banco de uso real do servidor e o SQLite legado real do dispositivo não foram usados como fixtures de teste.
 
@@ -248,6 +249,7 @@ Backend:
 Flutter:
 
 - `src/pubspec.yaml` e `src/pubspec.lock`
+- `src/android/.gitignore` (cache Kotlin gerado pela compilação)
 - `src/android/app/src/main/AndroidManifest.xml`
 - `src/android/app/src/debug/AndroidManifest.xml`
 - `src/lib/main.dart`
