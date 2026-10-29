@@ -101,6 +101,138 @@ function validarIdentificador(valor) {
   return identificador;
 }
 
+function validarAgendamento(corpo) {
+  const dados = validarObjeto(corpo, "Agendamento");
+
+  const petId = validarIdentificador(dados.pet_id);
+
+  const servico = validarOpcao(dados.servico, "Serviço", [
+    "Banho",
+    "Tosa",
+    "Banho e Tosa",
+  ]);
+
+  const dataHoraInformada = validarTexto(
+    dados.data_hora,
+    "Data e horário",
+    false,
+    23,
+  );
+
+  // Aceita horário com precisão de minuto, sem indicação de fuso.
+  const formatoValido = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:00(\.000)?)?$/;
+
+  if (!formatoValido.test(dataHoraInformada)) {
+    throw new ErroHttp(
+      400,
+      "Data e horário inválidos. Use AAAA-MM-DDTHH:mm:00.000, sem fuso horário.",
+    );
+  }
+
+  const minuto = dataHoraInformada.slice(0, 16);
+
+  // O Z serve somente para verificar a validade dos componentes da data.
+  // O valor armazenado continua sendo o horário local informado, sem fuso.
+  const data = new Date(`${minuto}:00.000Z`);
+
+  if (
+    Number.isNaN(data.getTime()) ||
+    data.toISOString().slice(0, 16) !== minuto ||
+    data.getUTCFullYear() < 2020 ||
+    data.getUTCFullYear() > 2100
+  ) {
+    throw new ErroHttp(
+      400,
+      "Informe uma data real entre os anos de 2020 e 2100.",
+    );
+  }
+
+  return {
+    pet_id: petId,
+    data_hora: `${minuto}:00.000`,
+    servico,
+  };
+}
+
+function gravarAgendamento(db, dados, agendamentoId = null) {
+  return executarTransacao(db, () => {
+    if (agendamentoId !== null) {
+      const agendamento = db
+        .prepare(
+          `
+        SELECT id
+        FROM agendamentos
+        WHERE id = ?
+      `,
+        )
+        .get(agendamentoId);
+
+      if (!agendamento) {
+        throw new ErroHttp(404, "Agendamento não encontrado.");
+      }
+    }
+
+    const pet = db
+      .prepare(
+        `
+      SELECT id
+      FROM pets
+      WHERE id = ?
+    `,
+      )
+      .get(dados.pet_id);
+
+    if (!pet) {
+      throw new ErroHttp(404, "Pet não encontrado.");
+    }
+
+    const conflito = db
+      .prepare(
+        `
+      SELECT id
+      FROM agendamentos
+      WHERE data_hora = ? AND id != ?
+      LIMIT 1
+    `,
+      )
+      .get(dados.data_hora, agendamentoId ?? -1);
+
+    if (conflito) {
+      throw new ErroHttp(
+        409,
+        "Já existe um agendamento para esta data e horário.",
+      );
+    }
+
+    if (agendamentoId !== null) {
+      db.prepare(
+        `
+        UPDATE agendamentos
+        SET pet_id = ?, data_hora = ?, servico = ?
+        WHERE id = ?
+      `,
+      ).run(dados.pet_id, dados.data_hora, dados.servico, agendamentoId);
+
+      return agendamentoId;
+    }
+
+    const resultado = db
+      .prepare(
+        `
+      INSERT INTO agendamentos (
+        pet_id,
+        data_hora,
+        servico
+      )
+      VALUES (?, ?, ?)
+    `,
+      )
+      .run(dados.pet_id, dados.data_hora, dados.servico);
+
+    return Number(resultado.lastInsertRowid);
+  });
+}
+
 export function criarApp(db) {
   const app = express();
 
@@ -319,6 +451,78 @@ export function criarApp(db) {
         WHERE id = ?
       `,
       ).run(clienteId);
+    });
+
+    res.status(200).json(consultarEstado(db));
+  });
+
+  // Lista os agendamentos com os nomes do cliente e do pet.
+  app.get("/api/agendamentos", (req, res) => {
+    res.status(200).json(consultarEstado(db).agendamentos);
+  });
+
+  // Consulta um agendamento pelo identificador.
+  app.get("/api/agendamentos/:id", (req, res) => {
+    const agendamentoId = validarIdentificador(req.params.id);
+
+    const agendamento = consultarEstado(db).agendamentos.find(
+      (item) => item.id === agendamentoId,
+    );
+
+    if (!agendamento) {
+      throw new ErroHttp(404, "Agendamento não encontrado.");
+    }
+
+    res.status(200).json(agendamento);
+  });
+
+  // Cria um agendamento.
+  app.post("/api/agendamentos", (req, res) => {
+    const dados = validarAgendamento(req.body);
+
+    const agendamentoId = gravarAgendamento(db, dados);
+
+    res
+      .status(201)
+      .location(`/api/agendamentos/${agendamentoId}`)
+      .json(consultarEstado(db));
+  });
+
+  // Atualiza um agendamento existente.
+  app.put("/api/agendamentos/:id", (req, res) => {
+    const agendamentoId = validarIdentificador(req.params.id);
+    const dados = validarAgendamento(req.body);
+
+    gravarAgendamento(db, dados, agendamentoId);
+
+    res.status(200).json(consultarEstado(db));
+  });
+
+  // Exclui um agendamento.
+  app.delete("/api/agendamentos/:id", (req, res) => {
+    const agendamentoId = validarIdentificador(req.params.id);
+
+    executarTransacao(db, () => {
+      const agendamento = db
+        .prepare(
+          `
+        SELECT id
+        FROM agendamentos
+        WHERE id = ?
+      `,
+        )
+        .get(agendamentoId);
+
+      if (!agendamento) {
+        throw new ErroHttp(404, "Agendamento não encontrado.");
+      }
+
+      db.prepare(
+        `
+        DELETE FROM agendamentos
+        WHERE id = ?
+      `,
+      ).run(agendamentoId);
     });
 
     res.status(200).json(consultarEstado(db));
