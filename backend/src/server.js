@@ -3,10 +3,10 @@ import { fileURLToPath } from 'node:url';
 import { abrirBanco } from './database.js';
 import { criarApp } from './app.js';
 
-const host = '127.0.0.1';
-const porta = 3000;
+const host = process.env.HOST ?? '127.0.0.1';
+const porta = Number(process.env.PORT ?? 3000);
 
-const caminhoBanco = fileURLToPath(
+const caminhoBanco = process.env.DB_PATH ?? fileURLToPath(
   new URL('../data/banho_tosa.sqlite', import.meta.url)
 );
 

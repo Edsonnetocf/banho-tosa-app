@@ -11,6 +11,11 @@ export function abrirBanco(caminho) {
 
   db.exec(`
     PRAGMA foreign_keys = ON;
+    PRAGMA busy_timeout = 5000;
+    CREATE TABLE IF NOT EXISTS importacoes (
+      origem TEXT PRIMARY KEY,
+      resultado TEXT NOT NULL
+    );
 
     CREATE TABLE IF NOT EXISTS clientes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
