@@ -1,108 +1,157 @@
 # Banho & Tosa App
 
-## Descrição da aplicação
+Aplicativo da disciplina Tecnologia de Construção de Software II (CMP2305), desenvolvido com Flutter e Dart para organizar clientes, pets e agendamentos de um petshop. A aplicação reduz a organização manual dos atendimentos e impede reservas no mesmo horário.
 
-Aplicativo mobile voltado para petshops de pequeno e médio porte, com foco na gestão de agendamentos de banho e tosa e no cadastro de clientes e seus respectivos animais de estimação.
+## Tecnologias e arquitetura
 
-## Problema que a aplicação resolve
+- Flutter, Dart e Material 3: interface, navegação e validação dos formulários.
+- Pacote `http`: comunicação assíncrona HTTP/JSON.
+- Node.js e Express: API e regras de negócio.
+- SQLite nativo do Node (`node:sqlite`): dados persistentes do servidor.
+- SQLite com `sqflite`: cache de consulta no Android e preservação dos dados da Etapa 4.
 
-Muitos petshops de pequeno porte ainda organizam seus agendamentos manualmente (papel, planilhas ou WhatsApp), o que pode gerar conflitos de horário, perda de informações e dificuldades na organização dos atendimentos.
+O servidor é a fonte dos dados graváveis. O aplicativo recebe um estado completo de clientes, pets e agendamentos, atualiza as duas abas e guarda uma cópia local. Sem conexão, essa cópia permite somente consulta. Não existe fila de gravações offline.
 
-O Banho & Tosa App centraliza o cadastro de clientes e pets e organiza os agendamentos, permitindo consultar, atualizar e remover informações armazenadas localmente.
+O banco antigo `banho_tosa.db` permanece preservado. A importação para o servidor é iniciada pelo usuário e ocorre em uma transação, com remapeamento de IDs e controle de repetição. Veja [a documentação da Etapa 5](docs/etapa-05.md).
 
-## Tecnologias utilizadas
+## Estrutura
 
-- **Flutter (Dart):** desenvolvimento da aplicação mobile.
-- **Material Design 3:** componentes e organização da interface.
-- **SQLite:** banco de dados relacional para persistência local.
-- **sqflite:** pacote utilizado para acessar o SQLite no Flutter.
-- **path:** pacote utilizado para construir o caminho do arquivo do banco de dados.
+```text
+backend/           API Express e testes Node
+src/               Projeto Flutter
+src/test/          Testes unitários e de interface
+src/integration_test/  Teste integrado Android
+docs/             Documentação das etapas
+```
 
-**Justificativa técnica:** o Flutter foi escolhido por permitir o desenvolvimento de uma interface única para múltiplas plataformas (Android e, futuramente, iOS) a partir de uma única base de código, reduzindo o tempo de desenvolvimento.
+## Pré-requisitos
 
-Além disso, o framework oferece suporte a Hot Reload, um ecossistema de pacotes e documentação oficial extensa, facilitando o desenvolvimento incremental durante a disciplina.
+- Node.js 24.14 ou superior, com npm.
+- Flutter compatível com Dart 3.13.1 ou superior.
+- Android SDK e emulador Android, ou aparelho Android conectado.
+- Ambiente validado durante o desenvolvimento: Windows, Node 24.14.0, Flutter 3.47.7 e Dart 3.13.5.
 
-O SQLite foi escolhido por permitir o armazenamento estruturado de clientes, pets e agendamentos, mantendo os relacionamentos entre esses registros por meio de identificadores e chaves estrangeiras.
+Execute `flutter doctor` para conferir o ambiente. O aviso `ExperimentalWarning` de SQLite no Node 24.14, isoladamente, não impede a execução.
 
-## Instruções para execução
+## Executar o backend
 
-1. Certifique-se de ter o Flutter SDK instalado e configurado (`flutter doctor`).
-2. Clone este repositório.
-3. Navegue até a pasta do código-fonte: `cd src`.
-4. Instale as dependências: `flutter pub get`.
-5. Inicie um emulador Android ou conecte um dispositivo compatível.
-6. Execute o aplicativo: `flutter run`.
+No PowerShell, entre na pasta `backend` do repositório. No ambiente original:
 
-Para verificar o código e executar os testes automatizados, utilize os seguintes comandos dentro da pasta `src`:
+```powershell
+Set-Location -LiteralPath 'C:\Users\edson\OneDrive\Documentos\DEV\Liguagens_testes\flutter-projects\petshop_app\backend'
+npm.cmd ci
+npm.cmd start
+```
 
-- `flutter analyze`
-- `flutter test`
+Em outra máquina, ajuste o caminho para a sua cópia do repositório. `npm.cmd start` deve ser executado dentro de `backend`, onde está o `package.json`.
 
-## Funcionalidades implementadas
+Abra `http://127.0.0.1:3000/api/health`. A resposta deve conter `"status":"ok"`. O banco é criado em `backend/data/banho_tosa.sqlite`; reiniciar a API não apaga seus registros. Preserve esse arquivo para preservar os dados do servidor.
 
-- Tela inicial de Splash.
-- Tela de Agenda com listagem de agendamentos.
-- Cadastro, edição e exclusão de agendamentos.
-- Seleção de cliente, pet, serviço, data e horário.
-- Verificação de conflitos entre agendamentos no mesmo horário.
-- Lista de clientes com busca e layout adaptável (lista/grid).
-- Cadastro e edição de clientes e pets.
-- Exclusão de clientes sem agendamentos associados.
-- Tela de detalhes do pet.
-- Persistência local de clientes, pets e agendamentos com SQLite.
-- Recuperação dos dados após o encerramento e a reabertura da aplicação.
+Deixe esse terminal aberto. Para encerrar o servidor, use Ctrl+C. Para reiniciar automaticamente ao editar o backend, use `npm.cmd run dev`.
 
-## Navegação e Acessibilidade (Etapa 3)
+## Executar o aplicativo Android
 
-- Navegação principal por abas fixas (Agenda e Clientes) utilizando `NavigationBar`.
-- Navegação interna por pilha (`Navigator.push/pop`) com botão de voltar automático.
-- Uso de `IndexedStack` para preservar o estado das abas.
-- Feedback visual de carregamento ao salvar clientes e agendamentos.
-- Mensagens de confirmação e erro utilizando `SnackBar`.
-- Diálogos de confirmação antes da exclusão de registros.
-- Uso de `Semantics`, `MergeSemantics` e `ExcludeSemantics` para acessibilidade.
-- Áreas de toque de no mínimo 48dp, seguindo a Lei de Fitts.
-- Contraste de texto adequado no tema principal da aplicação.
+Em um segundo terminal, entre em `src`:
 
-## Persistência Local (Etapa 4)
+```powershell
+Set-Location -LiteralPath 'C:\Users\edson\OneDrive\Documentos\DEV\Liguagens_testes\flutter-projects\petshop_app\src'
+flutter pub get
+flutter devices
+flutter run -d emulator-5554
+```
 
-A aplicação utiliza um banco de dados SQLite denominado `banho_tosa.db`, armazenado localmente no dispositivo.
+Substitua `emulator-5554` pelo identificador apresentado em `flutter devices`, se necessário. Inicie o emulador no Android Studio antes de executar o aplicativo.
 
-O banco possui três tabelas:
+No emulador Android padrão, o aplicativo utiliza `http://10.0.2.2:3000/api`, que aponta para a API executada no computador.
 
-- **clientes:** armazena nome e telefone.
-- **pets:** armazena as informações dos animais e sua associação com os clientes.
-- **agendamentos:** armazena serviço, data, horário e associação com os pets.
+O endereço pode ser configurado sem editar o código:
 
-As operações de criação, consulta, atualização e exclusão são realizadas por meio da classe `DatabaseHelper`, localizada em `src/lib/data/database_helper.dart`.
+```powershell
+flutter run -d emulator-5554 --dart-define=API_BASE_URL=http://10.0.2.2:3000/api
+```
 
-Os formulários realizam operações reais de armazenamento, substituindo o salvamento simulado das etapas anteriores.
+### Aparelho físico
 
-Os dados permanecem armazenados após o encerramento e a reabertura do aplicativo, enquanto o armazenamento local da aplicação for preservado.
+Conecte computador e celular à mesma rede. No terminal do backend, antes de iniciar:
 
-### Teste de persistência
+```powershell
+$env:HOST='0.0.0.0'
+npm.cmd start
+```
 
-1. Executar o aplicativo no emulador Android.
-2. Cadastrar um cliente e seu pet.
-3. Criar um agendamento.
-4. Encerrar completamente o aplicativo.
-5. Reabri-lo sem limpar seus dados.
-6. Verificar se os registros continuam disponíveis.
-7. Editar ou excluir registros e repetir a verificação.
+No terminal de `src`, use o IP local do computador, por exemplo:
 
-## Documentação
+```powershell
+flutter run --dart-define=API_BASE_URL=http://192.168.1.10:3000/api
+```
 
-- [Proposta inicial](docs/proposta.md)
-- [Etapa 2: Protótipo de interface](docs/etapa-02.md)
-- [Etapa 3: Navegação, UX e acessibilidade](docs/etapa-03.md)
-- [Etapa 4: Persistência local de dados](docs/etapa-04.md)
+Troque o IP pelo endereço real do computador e selecione o dispositivo indicado pelo Flutter. Se a conexão for bloqueada, confira as regras do Firewall do Windows para a rede privada. O HTTP sem criptografia está habilitado somente no build de desenvolvimento Android; uma versão de produção precisa de backend HTTPS.
+
+## Fluxo para revisar a aplicação
+
+1. Inicie a API e o aplicativo.
+2. Na aba Clientes, cadastre um tutor e seu pet. O telefone é opcional; quando informado, deve ter DDD e 10 ou 11 dígitos.
+3. Confira o cadastro e os detalhes do pet.
+4. Na Agenda, crie um agendamento para esse pet.
+5. Tente reservar o mesmo horário: a API deve rejeitar a operação.
+6. Edite o cliente e o agendamento. Confira os nomes atualizados nas duas abas.
+7. Tente excluir o cliente com agendamento: a API deve bloquear a exclusão.
+8. Exclua o agendamento e depois o cliente, confirmando os diálogos.
+9. Reinicie a API e o app para conferir a persistência das alterações.
+10. Com registros já carregados, pare a API e toque em Atualizar. O app deve identificar o modo offline e permitir apenas consulta.
+11. Reinicie a API e toque em Atualizar para voltar a gravar.
+
+Para importar registros antigos, use o botão **Importar dados da Etapa 4** na barra superior. Consulte as condições e os limites na documentação da etapa.
+
+## Testes
+
+Dentro de `backend`:
+
+```powershell
+npm.cmd test
+```
+
+Dentro de `src`:
+
+```powershell
+flutter analyze
+flutter test
+```
+
+O teste de integração Android deve usar uma API com banco exclusivo e vazio, conforme [o procedimento documentado](docs/etapa-05.md#teste-de-integração-android). Ele não deve ser apontado para um servidor com dados de uso real.
+
+## Funcionalidades
+
+- Splash, navegação por abas e formulários por pilha.
+- Busca de clientes e lista/grid adaptável.
+- Cadastro e edição de cliente e pet em uma transação.
+- Consulta dos detalhes dos pets.
+- CRUD de agendamentos, validações e prevenção de conflito de horário.
+- Exclusão de clientes sem agendamentos, com remoção dos pets em cascata.
+- Feedback de carregamento, sucesso, erro e confirmação de exclusão.
+- Cache SQLite para consulta offline, com indicação da última atualização.
+- Importação segura do SQLite da Etapa 4 para o backend.
 
 ## Limitações conhecidas
 
-- Os dados são armazenados localmente, sem sincronização entre dispositivos.
-- Não existe comunicação com backend ou APIs externas.
-- O formulário de cadastro trabalha com um pet por vez.
-- A tela de detalhes apresenta o primeiro pet associado ao cliente.
-- O histórico de atendimentos concluídos ainda não foi implementado.
-- A persistência SQLite desta etapa foi preparada para utilização no Android.
-- O banco de dados não possui uma camada adicional de criptografia implementada pelo aplicativo.
+- O alvo validado é Android. Não foi adicionada persistência específica para Web, Windows ou iOS.
+- As gravações exigem conexão com a API. O cache pode estar desatualizado e é separado por endereço do backend.
+- Sem autenticação e sem separação por usuário; a API é uma primeira versão acadêmica para ambiente de desenvolvimento.
+- O formulário edita um pet por vez e utiliza o primeiro pet do cadastro. Pets adicionais importados são preservados e podem ser escolhidos na Agenda e na consulta de detalhes.
+- Um horário representa um único atendimento, sem cálculo de duração ou capacidade por funcionário.
+- Histórico de atendimentos concluídos ainda não implementado.
+- Desinstalar o app ou limpar seu armazenamento remove o cache e a identidade de importação. Não repita a importação após esse procedimento sem verificar os dados no servidor.
+- O arquivo SQLite não possui criptografia adicional implementada pela aplicação.
+
+## Documentação e repositório
+
+- [Proposta](docs/proposta.md)
+- [Arquitetura](docs/arquitetura.md)
+- [Etapa 2](docs/etapa-02.md)
+- [Etapa 3](docs/etapa-03.md)
+- [Etapa 4](docs/etapa-04.md)
+- [Etapa 5](docs/etapa-05.md)
+
+Repositório: https://github.com/Edsonnetocf/banho-tosa-app
+
+A publicação e a criação da tag `etapa-05` dependem da revisão e confirmação do responsável pelo projeto.
