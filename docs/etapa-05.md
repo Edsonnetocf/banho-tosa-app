@@ -218,23 +218,6 @@ O formulário trabalha com o primeiro pet do cliente. Outros pets já importados
 
 Ferramentas: Flutter/Dart, Material 3, http, sqflite, path, Node.js, Express, node:sqlite, node:test, flutter_test e integration_test. Codex/ChatGPT foi utilizado no apoio à implementação, revisão, testes e documentação. A revisão e o domínio do código pelo aluno continuam necessários para a apresentação.
 
-## Entrega
-
-Repositório: https://github.com/Edsonnetocf/banho-tosa-app
-
-A tag prevista é `etapa-05`. Não foi criada nem publicada automaticamente. A entrega no GitHub depende da revisão e autorização do responsável, preservando as tags das etapas anteriores.
-
-## Resultados de validação em 29 de outubro de 2026
-
-- Backend: 16 testes aprovados, nenhum reprovado; HTTP real com SQLite em memória e teste de reabertura de arquivo temporário.
-- Flutter: 10 testes unitários/de interface aprovados, nenhum reprovado.
-- Análise estática: `flutter analyze` sem problemas.
-- Compilação: `flutter build apk --debug` concluído, gerando a entrada normal em `src/build/app/outputs/flutter-apk/app-debug.apk`.
-- Android Pixel 8: um teste de integração aprovado com API exclusiva na porta 3100 e bancos temporários, incluindo formulário, transferência dos dados antigos, CRUD, conflitos e cache offline.
-- O banco de uso real do servidor e o SQLite legado real do dispositivo não foram usados como fixtures de teste.
-
-O roteiro manual complementar continua disponível para a revisão do responsável antes da publicação.
-
 ## Arquivos desta implementação
 
 Backend:
