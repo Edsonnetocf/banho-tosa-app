@@ -1,0 +1,5 @@
+# Dependências do backend
+/backend/node_modules/
+
+# Banco de dados gerado durante a execução
+/backend/data/
