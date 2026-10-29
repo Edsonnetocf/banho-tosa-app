@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../data/database_helper.dart';
+import '../data/app_scope.dart';
 import '../models/cliente.dart';
 
 class ClienteFormScreen extends StatefulWidget {
@@ -65,7 +65,7 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
     try {
       final cliente = widget.cliente;
 
-      await DatabaseHelper.instancia.salvarClienteComPet(
+      await AppScope.read(context).salvarClienteComPet(
         clienteId: cliente?.id,
         petId: cliente != null && cliente.pets.isNotEmpty
             ? cliente.pets.first.id
@@ -122,6 +122,7 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
             const SizedBox(height: 8),
             TextFormField(
               controller: _nomeClienteController,
+              maxLength: 120,
               decoration: const InputDecoration(
                 labelText: 'Nome do cliente',
                 border: OutlineInputBorder(),
@@ -136,6 +137,17 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
             const SizedBox(height: 12),
             TextFormField(
               controller: _telefoneController,
+              maxLength: 25,
+              validator: (valor) {
+                final telefone = valor?.trim() ?? '';
+                if (telefone.isEmpty) return null;
+                if (!RegExp(r'^[\d\s()+-]+$').hasMatch(telefone) ||
+                    !RegExp(r'^\d{10,11}$')
+                        .hasMatch(telefone.replaceAll(RegExp(r'\D'), ''))) {
+                  return 'Informe DDD e número com 10 ou 11 dígitos';
+                }
+                return null;
+              },
               keyboardType: TextInputType.phone,
               decoration: const InputDecoration(
                 labelText: 'Telefone',
@@ -150,6 +162,7 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
             const SizedBox(height: 8),
             TextFormField(
               controller: _nomePetController,
+              maxLength: 120,
               decoration: const InputDecoration(
                 labelText: 'Nome do pet',
                 border: OutlineInputBorder(),
@@ -183,6 +196,7 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
             const SizedBox(height: 12),
             TextFormField(
               controller: _racaController,
+              maxLength: 120,
               decoration: const InputDecoration(
                 labelText: 'Raça',
                 border: OutlineInputBorder(),
@@ -213,7 +227,9 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 backgroundColor: const Color(0xFF0B6374),
               ),
-              onPressed: _salvando ? null : _salvar,
+              onPressed: _salvando || !AppScope.of(context).podeGravar
+                  ? null
+                  : _salvar,
               child: _salvando
                   ? const SizedBox(
                       height: 20,

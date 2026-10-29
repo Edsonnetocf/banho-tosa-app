@@ -1,174 +1,86 @@
 import 'package:flutter/material.dart';
 
-import '../data/database_helper.dart';
+import '../data/app_scope.dart';
 import '../models/agendamento.dart';
 import '../widgets/agendamento_tile.dart';
 import 'novo_agendamento_screen.dart';
 
-class AgendaScreen extends StatefulWidget {
+class AgendaScreen extends StatelessWidget {
   const AgendaScreen({super.key});
-
-  @override
-  State<AgendaScreen> createState() => _AgendaScreenState();
-}
-
-class _AgendaScreenState extends State<AgendaScreen> {
-  List<Agendamento> _agendamentos = [];
-  bool _carregando = true;
-  String? _erro;
-
-  @override
-  void initState() {
-    super.initState();
-    _carregarAgendamentos();
-  }
-
-  // Recupera os agendamentos armazenados no SQLite.
-  Future<void> _carregarAgendamentos() async {
-    setState(() {
-      _carregando = true;
-      _erro = null;
-    });
-
-    try {
-      final agendamentos = await DatabaseHelper.instancia.listarAgendamentos();
-
-      if (!mounted) return;
-
-      setState(() {
-        _agendamentos = agendamentos;
-        _carregando = false;
-      });
-    } catch (erro) {
-      if (!mounted) return;
-
-      setState(() {
-        _erro = 'Não foi possível carregar os agendamentos: $erro';
-        _carregando = false;
-      });
-    }
-  }
-
-  // Abre o formulário para cadastrar ou editar agendamentos.
-  Future<void> _abrirFormulario({Agendamento? agendamento}) async {
-    final resultado = await Navigator.push<bool>(
+  Future<void> _formulario(
+    BuildContext context, [
+    Agendamento? agendamento,
+  ]) async {
+    await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => NovoAgendamentoScreen(
-          agendamento: agendamento,
-        ),
+      MaterialPageRoute<bool>(
+        builder: (_) => NovoAgendamentoScreen(agendamento: agendamento),
       ),
     );
-
-    if (!mounted) return;
-
-    if (resultado == true) {
-      await _carregarAgendamentos();
-    }
   }
 
-  // Solicita confirmação antes de excluir um agendamento.
-  Future<void> _excluirAgendamento(Agendamento agendamento) async {
+  Future<void> _excluir(BuildContext context, Agendamento agendamento) async {
+    final repo = AppScope.read(context);
     final confirmou = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
+      builder: (dialog) => AlertDialog(
         title: const Text('Excluir agendamento'),
         content: Text(
-          'Deseja excluir o agendamento de '
-          '${agendamento.petNome}? '
-          'Esta ação não poderá ser desfeita.',
+          'Deseja excluir o agendamento de ${agendamento.petNome}?',
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
+            onPressed: () => Navigator.pop(dialog, false),
             child: const Text('Cancelar'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
+            onPressed: () => Navigator.pop(dialog, true),
             child: const Text('Excluir'),
           ),
         ],
       ),
     );
-
-    if (confirmou != true || agendamento.id == null) {
-      return;
-    }
-
+    if (confirmou != true) return;
     try {
-      await DatabaseHelper.instancia.excluirAgendamento(
-        agendamento.id!,
-      );
-
-      if (!mounted) return;
-
-      await _carregarAgendamentos();
-
-      if (!mounted) return;
-
+      await repo.excluirAgendamento(agendamento.id!);
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Agendamento excluído com sucesso!'),
-        ),
+        const SnackBar(content: Text('Agendamento excluído com sucesso!')),
       );
-    } catch (erro) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Não foi possível excluir o agendamento: $erro',
-          ),
-        ),
-      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final repo = AppScope.of(context);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Agenda'),
-      ),
-      body: _carregando
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : _erro != null
-          ? Center(
-              child: Text(_erro!),
-            )
-          : _agendamentos.isEmpty
-          ? const Center(
-              child: Text('Nenhum agendamento cadastrado.'),
-            )
+      appBar: AppBar(title: const Text('Agenda')),
+      body: repo.agendamentos.isEmpty
+          ? const Center(child: Text('Nenhum agendamento cadastrado.'))
           : ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: _agendamentos.length,
-              itemBuilder: (context, index) {
-                final agendamento = _agendamentos[index];
-
+              itemCount: repo.agendamentos.length,
+              itemBuilder: (_, i) {
+                final a = repo.agendamentos[i];
                 return AgendamentoTile(
-                  agendamento: agendamento,
-                  onEditar: () => _abrirFormulario(
-                    agendamento: agendamento,
-                  ),
-                  onExcluir: () => _excluirAgendamento(
-                    agendamento,
-                  ),
+                  agendamento: a,
+                  onEditar: repo.podeGravar
+                      ? () => _formulario(context, a)
+                      : null,
+                  onExcluir: repo.podeGravar
+                      ? () => _excluir(context, a)
+                      : null,
                 );
               },
             ),
-      floatingActionButton: Semantics(
-        label: 'Adicionar novo agendamento',
-        button: true,
-        hint: 'Abre o formulário para marcar um novo horário',
-        child: FloatingActionButton.extended(
-          heroTag: 'fab_agenda',
-          icon: const Icon(Icons.add),
-          label: const Text('Novo Agendamento'),
-          onPressed: _abrirFormulario,
-        ),
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'fab_agenda',
+        icon: const Icon(Icons.add),
+        label: const Text('Novo Agendamento'),
+        onPressed: repo.podeGravar ? () => _formulario(context) : null,
       ),
     );
   }

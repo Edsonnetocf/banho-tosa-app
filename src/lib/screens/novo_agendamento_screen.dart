@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../data/database_helper.dart';
+import '../data/app_scope.dart';
 import '../models/agendamento.dart';
 import '../models/cliente.dart';
 
@@ -49,12 +49,15 @@ class _NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
   // Recupera os clientes e pets cadastrados.
   Future<void> _carregarClientes() async {
     try {
-      final clientes = await DatabaseHelper.instancia.listarClientes();
+      final clientes = AppScope.read(context).clientes;
 
       if (!mounted) return;
 
       setState(() {
         _clientes = clientes;
+        if (!clientes.any((c) => c.pets.any((p) => p.id == _petSelecionado))) {
+          _petSelecionado = null;
+        }
         _carregando = false;
       });
     } catch (erro) {
@@ -73,7 +76,7 @@ class _NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
       context: context,
       initialDate: _data,
       firstDate: DateTime(2020),
-      lastDate: DateTime(2100),
+      lastDate: DateTime(2100, 12, 31),
     );
 
     if (novaData != null && mounted) {
@@ -93,7 +96,7 @@ class _NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
     }
   }
 
-  // Cria ou atualiza um agendamento no SQLite.
+  // Cria ou atualiza um agendamento pela API.
   Future<void> _salvar() async {
     if (_petSelecionado == null || _salvando) return;
 
@@ -108,7 +111,7 @@ class _NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
         _horario.minute,
       );
 
-      await DatabaseHelper.instancia.salvarAgendamento(
+      await AppScope.read(context).salvarAgendamento(
         id: widget.agendamento?.id,
         petId: _petSelecionado!,
         dataHora: dataHora,
@@ -261,7 +264,10 @@ class _NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       backgroundColor: const Color(0xFF0B6374),
                     ),
-                    onPressed: _salvando || _petSelecionado == null
+                    onPressed:
+                        _salvando ||
+                            !AppScope.of(context).podeGravar ||
+                            _petSelecionado == null
                         ? null
                         : _salvar,
                     child: _salvando
