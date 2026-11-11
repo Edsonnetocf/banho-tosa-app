@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../utils/app_log.dart';
 import '../models/cliente.dart';
 import '../models/pet.dart';
 import '../models/agendamento.dart';
@@ -52,13 +53,22 @@ class AppRepository extends ChangeNotifier {
     _aplicar(snapshot);
     try {
       await local.salvarCache(api.baseUrl, snapshot);
+      AppLog.sucesso(
+        'CACHE',
+        'Cópia dos dados do servidor atualizada no aparelho.',
+      );
     } catch (_) {
       aviso = 'Dados confirmados pelo servidor, mas o cache local não pôde ser atualizado.';
+      AppLog.aviso(
+        'CACHE',
+        'Falha ao guardar a cópia local; dados do servidor mantidos em memória.',
+      );
     }
   }
 
   Future<void> atualizar() async {
     if (ocupado) return;
+    AppLog.info('API', 'Atualizando clientes e agendamentos.');
     ocupado = true;
     erro = null;
     aviso = null;
@@ -70,18 +80,36 @@ class AppRepository extends ChangeNotifier {
           if (cache != null) {
             _aplicar(cache);
             offline = true;
+            AppLog.info(
+              'CACHE',
+              'Cópia local carregada | última atualização: $atualizadoEm.',
+            );
           }
         } catch (_) {
           aviso = 'Não foi possível ler o cache local.';
+          AppLog.aviso(
+            'CACHE',
+            'Falha ao ler a cópia local; tentando o servidor.',
+          );
         }
       }
       await _guardar(await api.requisitar('GET', '/estado'));
       offline = false;
+      AppLog.sucesso(
+        'API',
+        'Servidor conectado | clientes=${clientes.length} | agendamentos=${agendamentos.length}.',
+      );
     } catch (e) {
       offline = true;
       erro = e is StateError
           ? e.message.toString()
           : 'Não foi possível carregar os dados.';
+      AppLog.erro(
+        'API',
+        possuiDados
+            ? 'Atualização falhou | usando cópia local somente para consulta.'
+            : 'Atualização falhou | nenhum dado disponível para consulta.',
+      );
     } finally {
       ocupado = false;
       notifyListeners();
@@ -94,17 +122,37 @@ class AppRepository extends ChangeNotifier {
     Map<String, Object?>? corpo,
   ]) async {
     if (!podeGravar) {
+      AppLog.aviso(
+        'API',
+        '$metodo $caminho não enviado: gravação indisponível.',
+      );
       throw ApiException('Atualize a conexão com o servidor antes de gravar.');
     }
     ocupado = true;
     erro = null;
     aviso = null;
+    AppLog.info('API', '$metodo $caminho | enviando operação.');
     notifyListeners();
     try {
       final estado = await api.requisitar(metodo, caminho, corpo);
       await _guardar(estado);
+      AppLog.sucesso(
+        'API',
+        '$metodo $caminho | operação confirmada pelo servidor.',
+      );
       return estado;
     } on ApiException catch (e) {
+      if (e.indisponivel) {
+        AppLog.erro(
+          'API',
+          '$metodo $caminho | falha de comunicação com o servidor.',
+        );
+      } else {
+        AppLog.aviso(
+          'API',
+          '$metodo $caminho | operação recusada pelo servidor.',
+        );
+      }
       if (e.indisponivel) {
         offline = true;
         erro = e.message.toString();
@@ -176,8 +224,13 @@ class AppRepository extends ChangeNotifier {
   }
 
   Future<Map<String, Object?>> importarLegado() async {
+    AppLog.info('IMPORTACAO', 'Iniciando importação dos dados antigos.');
     final dados = await local.lerLegado();
     if ((dados['clientes'] as List).isEmpty) {
+      AppLog.aviso(
+        'IMPORTACAO',
+        'Nenhum cadastro antigo disponível neste aparelho.',
+      );
       throw ApiException('Não há cadastros da Etapa 4 neste dispositivo.');
     }
     final origem = await local.origem();
@@ -185,7 +238,12 @@ class AppRepository extends ChangeNotifier {
       ...dados,
       'origem': origem,
     });
-    return Map<String, Object?>.from(resposta['importacao'] as Map);
+    final resultado = Map<String, Object?>.from(resposta['importacao'] as Map);
+    AppLog.sucesso(
+      'IMPORTACAO',
+      'Concluída | clientes=${resultado['clientes']} | pets=${resultado['pets']} | agendamentos=${resultado['agendamentos']} | repetida=${resultado['repetida'] == true}.',
+    );
+    return resultado;
   }
 
   Future<void> fechar() async {

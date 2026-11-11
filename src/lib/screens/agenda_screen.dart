@@ -6,7 +6,9 @@ import '../widgets/agendamento_tile.dart';
 import 'novo_agendamento_screen.dart';
 
 class AgendaScreen extends StatelessWidget {
-  const AgendaScreen({super.key});
+  final List<Widget> acoes;
+
+  const AgendaScreen({super.key, this.acoes = const []});
   Future<void> _formulario(
     BuildContext context, [
     Agendamento? agendamento,
@@ -58,7 +60,7 @@ class AgendaScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final repo = AppScope.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Agenda')),
+      appBar: AppBar(title: const Text('Agenda'), actions: acoes),
       body: repo.agendamentos.isEmpty
           ? const Center(child: Text('Nenhum agendamento cadastrado.'))
           : ListView.builder(

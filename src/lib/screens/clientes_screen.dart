@@ -8,7 +8,9 @@ import 'cliente_form_screen.dart';
 import 'pet_detalhes_screen.dart';
 
 class ClientesScreen extends StatefulWidget {
-  const ClientesScreen({super.key});
+  final List<Widget> acoes;
+
+  const ClientesScreen({super.key, this.acoes = const []});
   @override
   State<ClientesScreen> createState() => _ClientesScreenState();
 }
@@ -100,7 +102,7 @@ class _ClientesScreenState extends State<ClientesScreen> {
       onExcluir: repo.podeGravar ? () => _excluir(c) : null,
     );
     return Scaffold(
-      appBar: AppBar(title: const Text('Clientes')),
+      appBar: AppBar(title: const Text('Clientes'), actions: widget.acoes),
       body: Column(
         children: [
           Padding(

@@ -26,7 +26,7 @@ class _HomeShellState extends State<HomeShell> {
     final confirmou = await showDialog<bool>(
       context: context,
       builder: (dialog) => AlertDialog(
-        title: const Text('Importar dados da Etapa 4'),
+        title: const Text('Importar dados antigos'),
         content: const Text(
           'Enviar os clientes, pets e agendamentos antigos deste dispositivo para o servidor? '
           'O banco original será preservado. Repetir a importação nesta instalação não duplica os registros.',
@@ -67,64 +67,39 @@ class _HomeShellState extends State<HomeShell> {
     }
   }
 
+  Widget _menuDados() {
+    final repo = AppScope.of(context);
+    return PopupMenuButton<String>(
+      tooltip: 'Mais opções',
+      onSelected: (acao) async {
+        if (acao == 'atualizar') {
+          await repo.atualizar();
+        } else if (acao == 'importar') {
+          await _importar();
+        }
+      },
+      itemBuilder: (_) => [
+        PopupMenuItem(
+          value: 'atualizar',
+          enabled: !repo.ocupado && !_importando,
+          child: const Text('Atualizar dados'),
+        ),
+        PopupMenuItem(
+          value: 'importar',
+          enabled: repo.podeGravar && !_importando,
+          child: const Text('Importar dados antigos'),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final repo = AppScope.of(context);
-    final data = repo.atualizadoEm?.toLocal();
-    final hora = data == null
-        ? ''
-        : ' • ${data.day}/${data.month} '
-              '${data.hour.toString().padLeft(2, '0')}:${data.minute.toString().padLeft(2, '0')}';
     return Material(
       child: SafeArea(
         child: Column(
           children: [
-            Material(
-              color: repo.offline
-                  ? Theme.of(context).colorScheme.errorContainer
-                  : Theme.of(context).colorScheme.surfaceContainerHighest,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        repo.offline
-                            ? 'Consulta offline$hora'
-                            : repo.possuiDados
-                            ? 'Servidor conectado$hora'
-                            : 'Conectando ao servidor',
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: 'Atualizar dados',
-                      onPressed: repo.ocupado || _importando
-                          ? null
-                          : repo.atualizar,
-                      icon: const Icon(Icons.refresh),
-                    ),
-                    IconButton(
-                      tooltip: 'Importar dados da Etapa 4',
-                      onPressed: repo.podeGravar && !_importando
-                          ? _importar
-                          : null,
-                      icon: const Icon(Icons.file_download_outlined),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            if (repo.ocupado || _importando) const LinearProgressIndicator(),
-            if (repo.erro != null || repo.aviso != null)
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: Text(
-                  repo.offline && repo.possuiDados
-                      ? '${repo.erro ?? ''} Apenas consulta; gravações indisponíveis.'
-                      : repo.erro ?? repo.aviso!,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
-                ),
-              ),
             Expanded(
               child: repo.possuiDados
                   ? IndexedStack(
@@ -132,11 +107,11 @@ class _HomeShellState extends State<HomeShell> {
                       children: [
                         HeroMode(
                           enabled: _aba == 0,
-                          child: const AgendaScreen(),
+                          child: AgendaScreen(acoes: [_menuDados()]),
                         ),
                         HeroMode(
                           enabled: _aba == 1,
-                          child: const ClientesScreen(),
+                          child: ClientesScreen(acoes: [_menuDados()]),
                         ),
                       ],
                     )

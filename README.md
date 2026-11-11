@@ -98,10 +98,14 @@ Troque o IP pelo endereço real do computador e selecione o dispositivo indicado
 7. Tente excluir o cliente com agendamento: a API deve bloquear a exclusão.
 8. Exclua o agendamento e depois o cliente, confirmando os diálogos.
 9. Reinicie a API e o app para conferir a persistência das alterações.
-10. Com registros já carregados, pare a API e toque em Atualizar. O app deve identificar o modo offline e permitir apenas consulta.
-11. Reinicie a API e toque em Atualizar para voltar a gravar.
+10. Com registros já carregados, pare a API e use **⋮ → Atualizar dados**. O app deve identificar o modo offline e permitir apenas consulta.
+11. Reinicie a API e use **⋮ → Atualizar dados** para voltar a gravar.
 
-Para importar registros antigos, use o botão **Importar dados da Etapa 4** na barra superior. Consulte as condições e os limites na documentação da etapa.
+Para importar registros antigos, use **⋮ → Importar dados antigos**, na Agenda ou em Clientes. Consulte as condições e os limites na documentação da etapa.
+
+## Logs de desenvolvimento
+
+A interface não exibe uma faixa permanente de conexão. Os eventos de servidor, cache e Wikidata aparecem no terminal do `flutter run` ou no console de depuração do VS Code, com horário, nível e categoria. Veja [como acompanhar os logs](docs/depuracao.md). As ações de atualizar e importar dados ficam no menu de três pontos da Agenda e de Clientes.
 
 ## Testes
 
@@ -129,7 +133,7 @@ O teste de integração Android deve usar uma API com banco exclusivo e vazio, c
 - CRUD de agendamentos, validações e prevenção de conflito de horário.
 - Exclusão de clientes sem agendamentos, com remoção dos pets em cascata.
 - Feedback de carregamento, sucesso, erro e confirmação de exclusão.
-- Cache SQLite para consulta offline, com indicação da última atualização.
+- Cache SQLite para consulta offline, com diagnóstico da conexão e da última atualização nos logs de desenvolvimento.
 - Importação segura do SQLite da Etapa 4 para o backend.
 
 ## Limitações conhecidas

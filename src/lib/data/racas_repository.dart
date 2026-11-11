@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../utils/app_log.dart';
 import 'catalogo_racas.dart';
 import 'racas_api.dart';
 import 'racas_cache.dart';
@@ -38,7 +39,13 @@ class RacasRepository extends ChangeNotifier {
   );
 
   Future<void> _carregar() async {
-    if (_catalogo?.validoEm(_agora(), validade) ?? false) return;
+    if (_catalogo?.validoEm(_agora(), validade) ?? false) {
+      AppLog.info(
+        'RACAS',
+        'Cache em memória válido | ${nomes.length} nomes | sem nova consulta.',
+      );
+      return;
+    }
     estado = EstadoRacas.carregando;
     erroConsulta = null;
     falhaCache = false;
@@ -48,8 +55,15 @@ class RacasRepository extends ChangeNotifier {
       _cacheLido = true;
       try {
         _catalogo = await cache.ler();
+        AppLog.info(
+          'RACAS',
+          _catalogo == null
+              ? 'Nenhum catálogo no cache local.'
+              : 'Cache local carregado | ${nomes.length} nomes | atualizado em $atualizadoEm.',
+        );
       } catch (_) {
         falhaCache = true;
+        AppLog.aviso('RACAS', 'Falha ao ler o cache; tentando o Wikidata.');
       }
       // Publica os dados guardados antes de aguardar a rede.
       notifyListeners();
@@ -57,28 +71,50 @@ class RacasRepository extends ChangeNotifier {
 
     if (_catalogo?.validoEm(_agora(), validade) ?? false) {
       estado = EstadoRacas.sucesso;
+      AppLog.sucesso(
+        'RACAS',
+        'Cache dentro do prazo | sem consulta ao Wikidata.',
+      );
       notifyListeners();
       return;
     }
 
     try {
+      AppLog.info('WIKIDATA', 'Consultando nomes de raças em português.');
       final recebidos = await api.consultar();
       if (recebidos.isEmpty) {
         // Uma resposta vazia não apaga um catálogo válido anterior.
         estado = EstadoRacas.vazio;
+        AppLog.aviso(
+          'WIKIDATA',
+          'Consulta sem nomes | catálogo anterior preservado.',
+        );
       } else {
         _catalogo = CatalogoRacas(nomes: recebidos, atualizadoEm: _agora());
         estado = EstadoRacas.sucesso;
+        AppLog.sucesso(
+          'WIKIDATA',
+          '${recebidos.length} nomes em português recebidos.',
+        );
         try {
           await cache.salvar(_catalogo!);
+          AppLog.sucesso('RACAS', 'Catálogo salvo no cache local.');
         } catch (_) {
           // A consulta continua utilizável em memória se a gravação falhar.
           falhaCache = true;
+          AppLog.aviso(
+            'RACAS',
+            'Falha ao salvar cache; catálogo disponível em memória.',
+          );
         }
       }
     } on RacasException catch (erro) {
       erroConsulta = erro.mensagem;
       estado = EstadoRacas.erro;
+      AppLog.erro(
+        'WIKIDATA',
+        '${erro.mensagem} | ${nomes.length} nomes disponíveis no cache.',
+      );
     } finally {
       notifyListeners();
     }
