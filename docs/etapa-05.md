@@ -144,6 +144,8 @@ A API usa parâmetros SQL para os valores. O cliente trata erro de rede, limite 
 
 ## Feedback e navegação
 
+A lista abaixo registra a interface da Etapa 5. Na [Etapa 6](etapa-06.md), a faixa permanente de status foi substituída por logs, e atualizar/importar dados passaram para o menu de três pontos.
+
 - Splash seguida das abas Agenda e Clientes.
 - Estado das abas preservado pelo IndexedStack.
 - Indicador de progresso durante atualização, importação e salvamento.
@@ -191,7 +193,7 @@ npm.cmd start
 Em outro terminal, dentro de `src`, com o emulador iniciado:
 
 ```powershell
-flutter test integration_test/fluxo_backend_test.dart -d emulator-5554 --dart-define=API_BASE_URL=http://10.0.2.2:3100/api
+flutter test integration_test/fluxo_backend_test.dart -d emulator-5554 --no-uninstall --dart-define=API_BASE_URL=http://10.0.2.2:3100/api
 ```
 
 Cada repetição deve começar com outro banco vazio no backend. Pare a API com Ctrl+C e execute novamente o bloco com `NewGuid`. Ao encerrar os testes, feche esse terminal para remover suas variáveis de ambiente da sessão.

@@ -2,6 +2,8 @@
 
 Aplicativo da disciplina Tecnologia de Construção de Software II (CMP2305), desenvolvido com Flutter e Dart para organizar clientes, pets e agendamentos de um petshop. A aplicação reduz a organização manual dos atendimentos e impede reservas no mesmo horário.
 
+A Etapa 6 integra o Wikidata ao campo Raça, com autocomplete em português, cache local e diagnóstico por logs. O contrato HTTP, os estados e o roteiro de apresentação estão na [documentação da Etapa 6](docs/etapa-06.md).
+
 ## Tecnologias e arquitetura
 
 - Flutter, Dart e Material 3: interface, navegação e validação dos formulários.
@@ -151,6 +153,7 @@ Esse teste consulta o Wikidata real (exige internet e disponibilidade do serviç
 - Feedback de carregamento, sucesso, erro e confirmação de exclusão.
 - Cache SQLite para consulta offline, com diagnóstico da conexão e da última atualização nos logs de desenvolvimento.
 - Importação segura do SQLite da Etapa 4 para o backend.
+- Consulta ao Wikidata, autocomplete de raças de cachorro em português e cache local de sete dias.
 
 ## Limitações conhecidas
 
@@ -171,5 +174,7 @@ Esse teste consulta o Wikidata real (exige internet e disponibilidade do serviç
 - [Etapa 3](docs/etapa-03.md)
 - [Etapa 4](docs/etapa-04.md)
 - [Etapa 5](docs/etapa-05.md)
+- [Etapa 6](docs/etapa-06.md)
+- [Logs e depuração](docs/depuracao.md)
 
 Repositório: https://github.com/Edsonnetocf/banho-tosa-app
