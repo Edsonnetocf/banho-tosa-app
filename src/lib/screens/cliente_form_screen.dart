@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../data/app_scope.dart';
 import '../models/cliente.dart';
+import '../data/racas_repository.dart';
+import '../widgets/campo_raca.dart';
 
 class ClienteFormScreen extends StatefulWidget {
   final Cliente? cliente;
+  final RacasRepository? racasRepository;
 
-  const ClienteFormScreen({super.key, this.cliente});
+  const ClienteFormScreen({super.key, this.cliente, this.racasRepository});
 
   @override
   State<ClienteFormScreen> createState() => _ClienteFormScreenState();
@@ -194,13 +197,10 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
               },
             ),
             const SizedBox(height: 12),
-            TextFormField(
+            CampoRaca(
               controller: _racaController,
-              maxLength: 120,
-              decoration: const InputDecoration(
-                labelText: 'Raça',
-                border: OutlineInputBorder(),
-              ),
+              repository: widget.racasRepository ?? RacasRepository.instancia,
+              sugerir: _especie == 'Cachorro',
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(

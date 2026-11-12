@@ -53,4 +53,4 @@ O Flutter DevTools também possui a aba **Logging**, que permite inspecionar os 
 - Sem servidor, os dados do cache continuam disponíveis somente para consulta; os logs não alteram essa regra.
 - Os registros incluem contagens e estados, sem nomes, telefones, corpos HTTP, credenciais ou a consulta digitada pelo usuário.
 - O projeto não salva estes logs em arquivo nem os envia a um serviço externo. Os logs da aplicação adicionados aqui ficam desativados em builds de produção.
-- As mensagens do Wikidata serão vistas no aplicativo quando o autocomplete for conectado ao formulário. Até lá, seus estados podem ser conferidos nos testes e a consulta real com `dart run tool/verificar_wikidata.dart`.
+- Ao abrir o cadastro de um cachorro, o catálogo de raças é carregado ou reutilizado. Os estados da consulta aparecem nos logs; digitar no campo apenas filtra os dados locais. O campo não exibe mensagens, ícones de status ou indicadores de carregamento. A consulta isolada continua disponível com `dart run tool/verificar_wikidata.dart`.

@@ -103,6 +103,14 @@ Troque o IP pelo endereço real do computador e selecione o dispositivo indicado
 
 Para importar registros antigos, use **⋮ → Importar dados antigos**, na Agenda ou em Clientes. Consulte as condições e os limites na documentação da etapa.
 
+## Sugestões de raça
+
+No cadastro ou edição de um cachorro, digite pelo menos duas letras no campo **Raça**. As sugestões aparecem no próprio campo, com até aproximadamente cinco itens visíveis e rolagem. A busca ignora acentos, maiúsculas e hífens: `alemao` encontra `Pastor-alemão`. Toque em um nome para preencher o campo, ou continue escrevendo livremente.
+
+A raça continua opcional. Para gatos e outras espécies, o preenchimento é manual. Trocar a espécie não apaga o texto existente.
+
+Os nomes em português são consultados no Wikidata e guardados em um cache SQLite próprio por sete dias. A digitação filtra a lista local; não envia o texto digitado ao serviço. Um cache vencido continua utilizável enquanto a atualização é tentada. Sem sugestões ou com falha, o campo permanece livre, sem mensagens de status. A disponibilidade do Wikidata não altera a conexão com o backend do projeto.
+
 ## Logs de desenvolvimento
 
 A interface não exibe uma faixa permanente de conexão. Os eventos de servidor, cache e Wikidata aparecem no terminal do `flutter run` ou no console de depuração do VS Code, com horário, nível e categoria. Veja [como acompanhar os logs](docs/depuracao.md). As ações de atualizar e importar dados ficam no menu de três pontos da Agenda e de Clientes.
@@ -122,7 +130,15 @@ flutter analyze
 flutter test
 ```
 
-O teste de integração Android deve usar uma API com banco exclusivo e vazio, conforme [o procedimento documentado](docs/etapa-05.md#teste-de-integração-android). Ele não deve ser apontado para um servidor com dados de uso real.
+O teste `integration_test/fluxo_backend_test.dart` deve usar uma API com banco exclusivo e vazio, conforme [o procedimento documentado](docs/etapa-05.md#teste-de-integração-android). Ele não deve ser apontado para um servidor com dados de uso real.
+
+Para conferir o autocomplete no Android e gerar uma captura, use um emulador de testes, dentro de `src`:
+
+```powershell
+flutter drive --driver=test_driver/autocomplete_driver.dart --target=integration_test/autocomplete_racas_test.dart -d emulator-5554
+```
+
+Esse teste consulta o Wikidata real (exige internet e disponibilidade do serviço), interage com o formulário e reabre um cache SQLite temporário simulando oito dias sem atualização e uma falha de rede. O backend do petshop é simulado nesse teste; ele não envia cadastros ao servidor. A captura fica em `src/build/integration_screenshots/autocomplete-racas.png`. Para voltar ao aplicativo normal depois do teste, execute `flutter run -d emulator-5554` em `src`.
 
 ## Funcionalidades
 
@@ -157,5 +173,3 @@ O teste de integração Android deve usar uma API com banco exclusivo e vazio, c
 - [Etapa 5](docs/etapa-05.md)
 
 Repositório: https://github.com/Edsonnetocf/banho-tosa-app
-
-A publicação e a criação da tag `etapa-05` dependem da revisão e confirmação do responsável pelo projeto.

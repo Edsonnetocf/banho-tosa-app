@@ -8,6 +8,7 @@ import 'racas_cache.dart';
 enum EstadoRacas { inicial, carregando, sucesso, vazio, erro }
 
 class RacasRepository extends ChangeNotifier {
+  static final instancia = RacasRepository();
   final RacasApi api;
   final RacasCache cache;
   final DateTime Function() _agora;

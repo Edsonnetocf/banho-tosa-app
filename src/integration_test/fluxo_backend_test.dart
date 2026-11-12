@@ -69,7 +69,9 @@ void main() {
         );
         await tester.pumpWidget(BanhoTosaApp(repository: repo));
         await tester.pumpAndSettle(const Duration(seconds: 3));
-        await tester.tap(find.byTooltip('Importar dados da Etapa 4'));
+        await tester.tap(find.byTooltip('Mais opções'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Importar dados antigos'));
         await tester.pumpAndSettle();
         await tester.tap(find.widgetWithText(TextButton, 'Importar'));
         await aguardar(tester, () => repo.clientes.isNotEmpty);
@@ -167,7 +169,8 @@ void main() {
         );
         await tester.pumpWidget(BanhoTosaApp(repository: offline));
         await tester.pumpAndSettle(const Duration(seconds: 3));
-        expect(find.textContaining('Consulta offline'), findsOneWidget);
+        expect(find.textContaining('Consulta offline'), findsNothing);
+        expect(offline.podeGravar, isFalse);
         expect(
           tester
               .widget<FloatingActionButton>(
