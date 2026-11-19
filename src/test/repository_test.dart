@@ -7,6 +7,7 @@ import 'package:petshop_app/data/api_client.dart';
 import 'package:petshop_app/data/app_repository.dart';
 
 import 'support/fakes.dart';
+import 'support/fotos_fakes.dart';
 
 Map<String, Object?> estado([String nome = 'Tutor']) => {
   'clientes': [
@@ -54,6 +55,8 @@ void main() {
     var chamadas = 0;
     final local = MemoriaLocal();
     final repo = AppRepository(
+      fotos: fotosTeste(),
+      galeria: GaleriaTeste(),
       local: local,
       api: ApiClient(
         client: MockClient((r) async {
@@ -86,6 +89,8 @@ void main() {
       local.caches['http://teste/api'] = estado();
       var chamadas = 0;
       final repo = AppRepository(
+        fotos: fotosTeste(),
+        galeria: GaleriaTeste(),
         local: local,
         api: ApiClient(
           baseUrl: 'http://teste/api',
@@ -109,6 +114,8 @@ void main() {
     final local = MemoriaLocal();
     local.caches['http://outro/api'] = estado();
     final repo = AppRepository(
+      fotos: fotosTeste(),
+      galeria: GaleriaTeste(),
       local: local,
       api: ApiClient(
         baseUrl: 'http://teste/api',
@@ -125,6 +132,8 @@ void main() {
     'conflito mantém dados anteriores e devolve mensagem do servidor',
     () async {
       final repo = AppRepository(
+        fotos: fotosTeste(),
+        galeria: GaleriaTeste(),
         local: MemoriaLocal(),
         api: ApiClient(
           client: MockClient(
@@ -160,6 +169,8 @@ void main() {
     () async {
       final local = MemoriaLocal()..falharAoSalvar = true;
       final repo = AppRepository(
+        fotos: fotosTeste(),
+        galeria: GaleriaTeste(),
         local: local,
         api: ApiClient(client: MockClient((_) async => json(estado()))),
       );
@@ -176,6 +187,8 @@ void main() {
     () async {
       var chamadas = 0;
       final repo = AppRepository(
+        fotos: fotosTeste(),
+        galeria: GaleriaTeste(),
         local: MemoriaLocal(),
         api: ApiClient(
           timeout: const Duration(milliseconds: 5),
@@ -208,6 +221,8 @@ void main() {
           'agendamentos': [],
         };
       final repo = AppRepository(
+        fotos: fotosTeste(),
+        galeria: GaleriaTeste(),
         local: local,
         api: ApiClient(
           client: MockClient((r) async {
@@ -235,4 +250,66 @@ void main() {
       repo.dispose();
     },
   );
+  for (final permitido in [true, false]) {
+    test(
+      'exclusão ${permitido ? 'confirmada limpa' : 'recusada preserva'} foto do pet',
+      () async {
+        final fotos = fotosTeste();
+        final store = fotos.store as FotosMemoria;
+        store.dados[fotos.servidor] = {2: '/privado/pet.img'};
+        await fotos.carregar();
+        final repo = AppRepository(
+          local: MemoriaLocal(),
+          fotos: fotos,
+          api: ApiClient(
+            client: MockClient((r) async {
+              if (r.method == 'GET') return json(estado());
+              return permitido
+                  ? json({'clientes': [], 'agendamentos': []})
+                  : json({'mensagem': 'Cliente possui agendamentos.'}, 409);
+            }),
+          ),
+        );
+        await repo.iniciar();
+        if (permitido) {
+          await repo.excluirCliente(1);
+          expect(fotos.caminhoPara(2), isNull);
+          expect(repo.clientes, isEmpty);
+        } else {
+          await expectLater(
+            repo.excluirCliente(1),
+            throwsA(isA<ApiException>()),
+          );
+          expect(fotos.caminhoPara(2), '/privado/pet.img');
+          expect(repo.clientes, isNotEmpty);
+        }
+        await repo.fechar();
+        repo.dispose();
+      },
+    );
+  }
+
+  test('falha na limpeza da foto não invalida exclusão confirmada', () async {
+    final fotos = fotosTeste();
+    final store = fotos.store as FotosMemoria;
+    store.dados[fotos.servidor] = {2: '/privado/pet.img'};
+    store.falhaAlteracao = true;
+    final repo = AppRepository(
+      local: MemoriaLocal(),
+      fotos: fotos,
+      api: ApiClient(
+        client: MockClient(
+          (r) async => json(
+            r.method == 'GET' ? estado() : {'clientes': [], 'agendamentos': []},
+          ),
+        ),
+      ),
+    );
+    await repo.iniciar();
+    await repo.excluirCliente(1);
+    expect(repo.clientes, isEmpty);
+    expect(repo.offline, isFalse);
+    await repo.fechar();
+    repo.dispose();
+  });
 }

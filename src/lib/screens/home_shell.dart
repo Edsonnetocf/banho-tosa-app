@@ -17,8 +17,25 @@ class _HomeShellState extends State<HomeShell> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) AppScope.read(context).iniciar();
+      if (!mounted) return;
+      final repo = AppScope.read(context);
+      repo.iniciar();
+      repo.fotos.carregar();
+      _conferirSelecaoInterrompida();
     });
+  }
+
+  Future<void> _conferirSelecaoInterrompida() async {
+    final interrompida = await AppScope.read(context).galeria
+        .descartarSelecaoInterrompida();
+    if (!mounted || !interrompida) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'A seleção da foto foi interrompida. Escolha novamente no cadastro.',
+        ),
+      ),
+    );
   }
 
   Future<void> _importar() async {

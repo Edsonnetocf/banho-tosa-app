@@ -69,6 +69,7 @@ class AgendaScreen extends StatelessWidget {
                 final a = repo.agendamentos[i];
                 return AgendamentoTile(
                   agendamento: a,
+                  caminhoFoto: repo.fotos.caminhoPara(a.petId ?? -1),
                   onEditar: repo.podeGravar
                       ? () => _formulario(context, a)
                       : null,

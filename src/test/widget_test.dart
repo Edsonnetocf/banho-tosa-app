@@ -9,12 +9,15 @@ import 'package:petshop_app/data/api_client.dart';
 import 'package:petshop_app/data/app_repository.dart';
 
 import 'support/fakes.dart';
+import 'support/fotos_fakes.dart';
 
 void main() {
   testWidgets('Splash abre a navegação e apresenta dados retornados pela API', (
     tester,
   ) async {
     final repo = AppRepository(
+      fotos: fotosTeste(),
+      galeria: GaleriaTeste(),
       local: MemoriaLocal(),
       api: ApiClient(
         client: MockClient(
@@ -51,6 +54,8 @@ void main() {
   });
   testWidgets('Sem conexão e sem cache oferece nova tentativa', (tester) async {
     final repo = AppRepository(
+      fotos: fotosTeste(),
+      galeria: GaleriaTeste(),
       local: MemoriaLocal(),
       api: ApiClient(
         client: MockClient(
@@ -85,7 +90,12 @@ void main() {
       );
       final local = MemoriaLocal();
       local.caches[api.baseUrl] = {'clientes': [], 'agendamentos': []};
-      final repo = AppRepository(local: local, api: api);
+      final repo = AppRepository(
+        local: local,
+        api: api,
+        fotos: fotosTeste(),
+        galeria: GaleriaTeste(),
+      );
       await repo.iniciar();
       await tester.pumpWidget(BanhoTosaApp(repository: repo));
       await tester.pump(const Duration(seconds: 3));

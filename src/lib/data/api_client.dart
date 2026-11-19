@@ -10,6 +10,12 @@ class ApiException extends StateError {
   String toString() => message.toString();
 }
 
+class RespostaApi {
+  final Map<String, Object?> dados;
+  final String? localizacao;
+  const RespostaApi(this.dados, {this.localizacao});
+}
+
 class ApiClient {
   final http.Client _client;
   final String baseUrl;
@@ -29,6 +35,12 @@ class ApiClient {
                .replaceFirst(RegExp(r'/+$'), '');
 
   Future<Map<String, Object?>> requisitar(
+    String metodo,
+    String caminho, [
+    Map<String, Object?>? corpo,
+  ]) async => (await requisitarDetalhado(metodo, caminho, corpo)).dados;
+
+  Future<RespostaApi> requisitarDetalhado(
     String metodo,
     String caminho, [
     Map<String, Object?>? corpo,
@@ -56,7 +68,10 @@ class ApiClient {
       if (dados is! Map<String, dynamic>) {
         throw const FormatException('Objeto JSON esperado');
       }
-      return Map<String, Object?>.from(dados);
+      return RespostaApi(
+        Map<String, Object?>.from(dados),
+        localizacao: resposta.headers['location'],
+      );
     } on TimeoutException {
       throw ApiException(
         'O servidor demorou para responder. Atualize a lista '

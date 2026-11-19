@@ -6,14 +6,26 @@ import '../models/pet.dart';
 import '../models/agendamento.dart';
 import 'api_client.dart';
 import 'local_store.dart';
+import 'fotos_pet_repository.dart';
+import 'galeria_pet.dart';
 
 class AppRepository extends ChangeNotifier {
   static final instancia = AppRepository();
   final ApiClient api;
   final PersistenciaLocal local;
-  AppRepository({ApiClient? api, PersistenciaLocal? local})
-    : api = api ?? ApiClient(),
-      local = local ?? LocalStore();
+  late final FotosPetRepository fotos;
+  final GaleriaPet galeria;
+  AppRepository({
+    ApiClient? api,
+    PersistenciaLocal? local,
+    FotosPetRepository? fotos,
+    GaleriaPet? galeria,
+  }) : api = api ?? ApiClient(),
+       local = local ?? LocalStore(),
+       galeria = galeria ?? GaleriaPetNativa() {
+    this.fotos = fotos ?? FotosPetRepository(servidor: this.api.baseUrl);
+    this.fotos.addListener(notifyListeners);
+  }
 
   List<Cliente> clientes = const [];
   List<Agendamento> agendamentos = const [];
@@ -120,6 +132,12 @@ class AppRepository extends ChangeNotifier {
     String metodo,
     String caminho, [
     Map<String, Object?>? corpo,
+  ]) async => (await _gravarResposta(metodo, caminho, corpo)).dados;
+
+  Future<RespostaApi> _gravarResposta(
+    String metodo,
+    String caminho, [
+    Map<String, Object?>? corpo,
   ]) async {
     if (!podeGravar) {
       AppLog.aviso(
@@ -134,13 +152,13 @@ class AppRepository extends ChangeNotifier {
     AppLog.info('API', '$metodo $caminho | enviando operação.');
     notifyListeners();
     try {
-      final estado = await api.requisitar(metodo, caminho, corpo);
-      await _guardar(estado);
+      final resposta = await api.requisitarDetalhado(metodo, caminho, corpo);
+      await _guardar(resposta.dados);
       AppLog.sucesso(
         'API',
         '$metodo $caminho | operação confirmada pelo servidor.',
       );
-      return estado;
+      return resposta;
     } on ApiException catch (e) {
       if (e.indisponivel) {
         AppLog.erro(
@@ -164,7 +182,7 @@ class AppRepository extends ChangeNotifier {
     }
   }
 
-  Future<void> salvarClienteComPet({
+  Future<int?> salvarClienteComPet({
     int? clienteId,
     int? petId,
     required String nomeCliente,
@@ -174,7 +192,7 @@ class AppRepository extends ChangeNotifier {
     required String raca,
     required String porte,
   }) async {
-    await _gravar(
+    final resposta = await _gravarResposta(
       clienteId == null ? 'POST' : 'PUT',
       clienteId == null ? '/clientes' : '/clientes/$clienteId',
       {
@@ -189,10 +207,41 @@ class AppRepository extends ChangeNotifier {
         },
       },
     );
+    // Location identifica o cadastro criado mesmo se outro cliente for criado
+    // simultaneamente. Nomes e posição na lista não identificam um pet.
+    final caminhoCriado = Uri.tryParse(resposta.localizacao ?? '')?.path ?? '';
+    final novoId = int.tryParse(
+      RegExp(r'/clientes/([1-9]\d*)/?$').firstMatch(caminhoCriado)?.group(1) ??
+          '',
+    );
+    final id = clienteId ?? novoId;
+    final cliente = clientes.where((c) => c.id == id).firstOrNull;
+    if (cliente == null) return null;
+    if (petId != null) {
+      return cliente.pets.where((p) => p.id == petId).firstOrNull?.id;
+    }
+    return cliente.pets.length == 1 ? cliente.pets.single.id : null;
   }
 
   Future<void> excluirCliente(int id) async {
+    final ids = clientes
+        .where((c) => c.id == id)
+        .expand((c) => c.pets)
+        .map((p) => p.id)
+        .whereType<int>()
+        .toList();
     await _gravar('DELETE', '/clientes/$id');
+    // A falha de limpeza local não desfaz a exclusão confirmada pela API.
+    for (final petId in ids) {
+      try {
+        await fotos.removerFoto(petId);
+      } catch (_) {
+        AppLog.aviso(
+          'FOTOS',
+          'Cadastro excluído; limpeza de foto local pendente.',
+        );
+      }
+    }
   }
 
   Future<void> excluirAgendamento(int id) async {
@@ -249,5 +298,13 @@ class AppRepository extends ChangeNotifier {
   Future<void> fechar() async {
     api.close();
     await local.fechar();
+    await fotos.fechar();
+  }
+
+  @override
+  void dispose() {
+    fotos.removeListener(notifyListeners);
+    fotos.dispose();
+    super.dispose();
   }
 }

@@ -40,6 +40,7 @@ dependencies:
   path_provider: ^2.1.6
   # 2.3.1 falhou ao localizar Context no emulador API 37 deste projeto.
   path_provider_android: 2.2.23
+  image_picker: ^1.2.4
 
 dev_dependencies:
   integration_test:

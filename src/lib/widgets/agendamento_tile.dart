@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 
 import '../models/agendamento.dart';
+import 'foto_pet.dart';
 
 class AgendamentoTile extends StatelessWidget {
   final Agendamento agendamento;
+  final String? caminhoFoto;
   final VoidCallback? onEditar;
   final VoidCallback? onExcluir;
 
   const AgendamentoTile({
     super.key,
     required this.agendamento,
+    this.caminhoFoto,
     this.onEditar,
     this.onExcluir,
   });
@@ -31,19 +34,8 @@ class AgendamentoTile extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            Column(
-              children: [
-                Text(
-                  hora,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(data),
-              ],
-            ),
-            const SizedBox(width: 16),
+            FotoPet(caminho: caminhoFoto),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,6 +47,7 @@ class AgendamentoTile extends StatelessWidget {
                     ),
                   ),
                   Text(agendamento.servico),
+                  Text('$data • $hora'),
                 ],
               ),
             ),

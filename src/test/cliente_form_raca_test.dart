@@ -15,6 +15,7 @@ import 'package:petshop_app/screens/cliente_form_screen.dart';
 
 import 'support/racas_fakes.dart';
 import 'support/fakes.dart';
+import 'support/fotos_fakes.dart';
 
 void main() {
   for (final editar in [false, true]) {
@@ -32,6 +33,8 @@ void main() {
         Map<String, dynamic>? enviado;
         String? metodo;
         final repo = AppRepository(
+          fotos: fotosTeste(),
+          galeria: GaleriaTeste(),
           local: MemoriaLocal(),
           api: ApiClient(
             client: MockClient((r) async {

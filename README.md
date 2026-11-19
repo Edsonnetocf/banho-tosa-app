@@ -116,6 +116,14 @@ A raça continua opcional. Para gatos e outras espécies, o preenchimento é man
 
 Os nomes em português são consultados no Wikidata e guardados em um cache SQLite próprio por sete dias. A digitação filtra a lista local; não envia o texto digitado ao serviço. Um cache vencido continua utilizável enquanto a atualização é tentada. Sem sugestões ou com falha, o campo permanece livre, sem mensagens de status. A disponibilidade do Wikidata não altera a conexão com o backend do projeto.
 
+## Foto do pet
+
+No cadastro ou na edição, toque em **Adicionar foto**, escolha uma imagem da galeria e toque em **Salvar**. A foto é opcional. **Trocar foto** e **Remover foto** também só são aplicados ao salvar; voltar sem salvar preserva a foto anterior.
+
+A imagem aparece nos detalhes do pet e na Agenda, com atualização automática entre telas. Nos detalhes, o ícone **Editar pet** abre a edição daquele pet, inclusive quando o cliente possui vários animais.
+
+As fotos ficam somente neste aparelho, em uma pasta privada do app; não são enviadas à API nem sincronizadas com outros dispositivos. O arquivo original da galeria é preservado. Consulte o funcionamento e o roteiro de testes na [documentação da Etapa 7](docs/etapa-07.md).
+
 ## Logs de desenvolvimento
 
 A interface não exibe uma faixa permanente de conexão. Os eventos de servidor, cache e Wikidata aparecem no terminal do `flutter run` ou no console de depuração do VS Code, com horário, nível e categoria. Veja [como acompanhar os logs](docs/depuracao.md). As ações de atualizar e importar dados ficam no menu de três pontos da Agenda e de Clientes.
