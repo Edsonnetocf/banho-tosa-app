@@ -57,10 +57,13 @@ Em um segundo terminal, entre em `src`:
 
 ```powershell
 Set-Location -LiteralPath 'C:\Users\edson\OneDrive\Documentos\DEV\Liguagens_testes\flutter-projects\petshop_app\src'
+$env:FLUTTER_WINDOWS='false'
 flutter pub get
 flutter devices
 flutter run -d emulator-5554
 ```
+
+No PowerShell do Windows, `$env:FLUTTER_WINDOWS='false'` desativa o alvo Windows apenas neste terminal, evitando a criação de links simbólicos para plugins de desktop. O alvo Android continua disponível. A configuração global do Flutter e do Windows permanece como estava.
 
 Substitua `emulator-5554` pelo identificador apresentado em `flutter devices`, se necessário. Inicie o emulador no Android Studio antes de executar o aplicativo.
 
