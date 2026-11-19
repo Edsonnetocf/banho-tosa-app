@@ -4,6 +4,8 @@ Aplicativo da disciplina Tecnologia de Construção de Software II (CMP2305), de
 
 A Etapa 6 integra o Wikidata ao campo Raça, com autocomplete em português, cache local e diagnóstico por logs. O contrato HTTP, os estados e o roteiro de apresentação estão na [documentação da Etapa 6](docs/etapa-06.md).
 
+A Etapa 7 adiciona fotos de pets pela galeria, armazenamento privado no aparelho e estado compartilhado entre cadastro, detalhes e Agenda. O funcionamento e o roteiro de testes estão na [documentação da Etapa 7](docs/etapa-07.md).
+
 ## Tecnologias e arquitetura
 
 - Flutter, Dart e Material 3: interface, navegação e validação dos formulários.
@@ -159,6 +161,7 @@ Esse teste consulta o Wikidata real (exige internet e disponibilidade do serviç
 - Busca de clientes e lista/grid adaptável.
 - Cadastro e edição de cliente e pet em uma transação.
 - Consulta dos detalhes dos pets.
+- Foto opcional do pet pela galeria, com troca, remoção e atualização compartilhada nos detalhes e na Agenda.
 - CRUD de agendamentos, validações e prevenção de conflito de horário.
 - Exclusão de clientes sem agendamentos, com remoção dos pets em cascata.
 - Feedback de carregamento, sucesso, erro e confirmação de exclusão.
@@ -171,7 +174,7 @@ Esse teste consulta o Wikidata real (exige internet e disponibilidade do serviç
 - O alvo validado é Android. Não foi adicionada persistência específica para Web, Windows ou iOS.
 - As gravações exigem conexão com a API. O cache pode estar desatualizado e é separado por endereço do backend.
 - Sem autenticação e sem separação por usuário; a API é uma primeira versão acadêmica para ambiente de desenvolvimento.
-- O formulário edita um pet por vez e utiliza o primeiro pet do cadastro. Pets adicionais importados são preservados e podem ser escolhidos na Agenda e na consulta de detalhes.
+- O formulário edita um pet por vez. A edição pela lista de clientes abre o primeiro pet; para editar outro, escolha-o nos detalhes e toque em **Editar pet**. Não existe cadastro de vários pets em um único formulário.
 - Um horário representa um único atendimento, sem cálculo de duração ou capacidade por funcionário.
 - Histórico de atendimentos concluídos ainda não implementado.
 - Desinstalar o app ou limpar seu armazenamento remove o cache e a identidade de importação. Não repita a importação após esse procedimento sem verificar os dados no servidor.
@@ -186,6 +189,7 @@ Esse teste consulta o Wikidata real (exige internet e disponibilidade do serviç
 - [Etapa 4](docs/etapa-04.md)
 - [Etapa 5](docs/etapa-05.md)
 - [Etapa 6](docs/etapa-06.md)
+- [Etapa 7](docs/etapa-07.md)
 - [Logs e depuração](docs/depuracao.md)
 
 Repositório: https://github.com/Edsonnetocf/banho-tosa-app

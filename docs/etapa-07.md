@@ -26,7 +26,7 @@ A troca só remove a cópia anterior depois que a nova associação foi persisti
 
 A tela exibe apenas a prévia, o botão de adicionar/trocar e a opção de remover quando existe uma foto. Os eventos técnicos aparecem nos logs com a categoria `FOTOS`.
 
-- Cancelar a galeria mantém a seleção anterior; abandonar o formulário mantém a foto persistida.
+- Cancelar a galeria mantém a seleção anterior. Abandonar o formulário mantém a foto persistida.
 - Falha de acesso, imagem inválida ou arquivo grande gera um aviso temporário, sem alterar a foto anterior.
 - Falha local após a API salvar o cadastro informa que somente a foto precisa ser tentada novamente pela edição. O POST não é repetido.
 - Arquivo local ausente ou ilegível é substituído visualmente pelo ícone de pet.
@@ -75,5 +75,3 @@ Há também um teste opcional do seletor real, para um **emulador de testes com 
 ```powershell
 flutter test integration_test/galeria_pet_test.dart -d emulator-5554 --dart-define=TESTE_GALERIA_INTERATIVA=true
 ```
-
-Sem essa opção, o teste interativo é ignorado. Ao terminar os testes Android, execute `flutter run` novamente para voltar ao aplicativo normal. Commits e publicação da tag `etapa-07` são realizados manualmente após a revisão da entrega.
